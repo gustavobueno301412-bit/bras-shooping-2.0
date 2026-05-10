@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brás Shopping - Bueno Software</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <style>
         :root {
             --azul-bras: #003366;
@@ -194,7 +196,7 @@
         </div>
 
         <div id="acoesLoja" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-   
+  
     <a id="btnInsta" href="#" target="_blank" class="btn-acao" style="background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 16px; border: none; box-shadow: 0 4px 10px rgba(220, 39, 67, 0.3);">
         📸 VER FOTO NO INSTAGRAM
     </a>
@@ -209,7 +211,7 @@
 
 </div>
 
- 
+
 
     </div>
 </div>
@@ -252,8 +254,8 @@
             <b>5. DA NATUREZA DA PLATAFORMA:</b> O Brás Shopping opera estritamente como uma VITRINE DIGITAL e guia de busca. A plataforma funciona como um recurso tecnológico de aproximação, não sendo parte da cadeia de consumo, venda, pagamento ou entrega dos produtos.<br><br>
             <b>6. DA AUSÊNCIA DE VÍNCULO:</b> Declaramos a inexistência de qualquer vínculo empregatício, societário ou de responsabilidade solidária com os estabelecimentos cadastrados. O Brás Shopping não é proprietário, representante ou garantidor das lojas anunciadas.<br><br>
             <b>7. DA LEGALIDADE E ORIGEM DOS PRODUTOS:</b> O anunciante declara, sob as penas da lei, que exerce atividade econômica legalizada e que seus produtos possuem procedência comprovada. A plataforma repudia o comércio de mercadorias ilícitas, contrafeitas (falsificadas) ou sem nota fiscal. É dever do lojista cumprir todas as normas fiscais, sanitárias e de consumo vigentes.<br><br>
-            <b>8. DA FISCALIZAÇÃO E DA RESPONSABILIDADE:</b> O lojista é o único e exclusivo responsável por eventuais fiscalizações, autuações ou problemas de qualidade e entrega. O Brás Shopping não monitora estoques e não garante a idoneidade das transações realizadas fora do ambiente do aplicativo.<br><br> 
-            <b>9. DO GPS E PRIVACIDADE:</b> O lojista autoriza a coleta da coordenada geográfica (GPS) no ato do cadastro para fins de geolocalização do estabelecimento físico, isentando a plataforma de mau uso desse dado por terceiros.<br><br> 
+            <b>8. DA FISCALIZAÇÃO E DA RESPONSABILIDADE:</b> O lojista é o único e exclusivo responsável por eventuais fiscalizações, autuações ou problemas de qualidade e entrega. O Brás Shopping não monitora estoques e não garante a idoneidade das transações realizadas fora do ambiente do aplicativo.<br><br>
+            <b>9. DO GPS E PRIVACIDADE:</b> O lojista autoriza a coleta da coordenada geográfica (GPS) no ato do cadastro para fins de geolocalização do estabelecimento físico, isentando a plataforma de mau uso desse dado por terceiros.<br><br>
             <b>10. VALORES (PIX):</b> <br>
             6.1. PLANO ESSENCIAL: R$ 50,00 mensais.<br>
             6.2. PLANO DESTAQUE (BANNER): R$ 70,00 mensais.<br>
@@ -271,7 +273,19 @@
 </div>
 
 <script>
-    const URL_PLANILHA = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR8CAesOiz0YRJynkGb0Oif1KRZtGNQpjRqlHXJmEFdbD8ou_9PhjFUkokgYsgFxlxBsIjX3-UToQ2j/pub?output=csv';
+ // --- CONFIGURAÇÃO FIREBASE (GUSTAVO, COPIE E COLE ESTE BLOCO) ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyACA6nldTkMrPvmisF5ukZ1q7xZNFR3h-w",
+    authDomain: "bras-shopping.firebaseapp.com",
+    projectId: "bras-shopping",
+    storageBucket: "bras-shopping.firebasestorage.app",
+    messagingSenderId: "447237195055",
+    appId: "1:447237195055:web:d5c5eba24d2502a2178dda",
+    measurementId: "G-JKCRH0ECZZ"
+  };
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
    
     let lojas = [];
     let bannerIndex = 0;
@@ -279,46 +293,46 @@
     function limpar(t) { return t ? t.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : ""; }
 
     async function carregarDados() {
-    // 1. Primeiro atualiza o botão do veículo (que já instalamos)
     atualizarBotaoVeiculo();
 
-    // 2. Tenta pegar os dados salvos no celular (Cache)
     const cacheSalvo = localStorage.getItem('bras_shopping_cache');
     const ultimaAtualizacao = localStorage.getItem('bras_cache_hora');
     const agora = new Date().getTime();
-   
-    // Se tiver cache e ele tiver menos de 30 minutos, usa o que tá no celular
+  
     if (cacheSalvo && ultimaAtualizacao && (agora - ultimaAtualizacao < 30 * 60 * 1000)) {
         lojas = JSON.parse(cacheSalvo);
         mostrarLojas();
         iniciarBanner();
-        console.log("Usando dados do cache (Economizando Firebase)");
+        console.log("Usando dados do cache");
         return;
     }
 
-    // 3. Se não tem cache ou é velho, busca na planilha
     try {
-        const r = await fetch(URL_PLANILHA);
-        const csv = await r.text();
-        const linhas = csv.split('\n').slice(1);
-       
-        lojas = linhas.map(linha => {
-            const c = linha.split(',');
+        // --- TROCADO: AGORA LÊ DO FIREBASE ---
+        const snapshot = await db.collection("lojas").get();
+        lojas = snapshot.docs.map(doc => {
+            const d = doc.data();
             return {
-                nome: c[0]?.trim(), segmento: c[1]?.trim() || "", desc: c[2]?.trim(),
-                zap: c[3]?.trim(), horario: c[4]?.trim(), lat: c[5]?.trim(),
-                log: c[6]?.trim(), foto: c[7]?.trim(), banner: c[8]?.trim()
+                nome: d.nome || "",
+                seguimentos: d.seguimentos || "", // AJUSTADO PARA O SEU FIREBASE
+                desc: d.desc || "",
+                zap: d.zap || "",
+                horario: d.horario || "",
+                lat: d.lat || "",
+                lng: d.lng || "", // AJUSTADO DE LOG PARA LNG
+                foto: d.foto || "",
+                banner: d.banner || ""
             };
-        }).filter(l => l.nome && l.nome.length > 1);
+        });
 
-        // 4. Salva no celular para a próxima vez
         localStorage.setItem('bras_shopping_cache', JSON.stringify(lojas));
         localStorage.setItem('bras_cache_hora', agora.toString());
 
         mostrarLojas();
         iniciarBanner();
     } catch (e) {
-        if(cacheSalvo) { // Se der erro de internet, tenta usar o cache mesmo velho
+        console.error("Erro Firebase:", e);
+        if(cacheSalvo) {
             lojas = JSON.parse(cacheSalvo);
             mostrarLojas();
         } else {
@@ -327,16 +341,13 @@
     }
 }
 
- 
-
-
    function mostrarLojas(filtro = 'todos') {
     let lista = [...lojas];
-    if (limpar(filtro) !== 'todos') lista = lista.filter(l => limpar(l.segmento) === limpar(filtro));
-   
+    // AJUSTADO: l.seguimentos
+    if (limpar(filtro) !== 'todos') lista = lista.filter(l => limpar(l.seguimentos) === limpar(filtro));
+  
     lista.sort(() => Math.random() - 0.5);
 
-    // Mostra apenas as primeiras 40 lojas para o app carregar instantâneo
     const iniciais = lista.slice(0, 40);
 
     let html = '';
@@ -347,15 +358,12 @@
                 <div class="nome-loja">${l.nome}</div>
                 <div class="desc-card">${l.desc ? l.desc.substring(0, 40) + '...' : ''}</div>
                 <div class="horario-card">🕒 ${l.horario || 'Consulte'}</div>
-                <span class="tag-segmento">${l.segmento}</span>
+                <span class="tag-segmento">${l.seguimentos}</span>
                 <div class="btn-detalhes">VER DETALHES</div>
             </div>`;
     });
     document.getElementById('vitrine').innerHTML = html;
 }
-
- 
-
 
     function iniciarBanner() {
         const wrapper = document.getElementById('bannerApp');
@@ -374,11 +382,13 @@
         if(!l) return;
         document.getElementById('modalNome').innerText = l.nome;
         document.getElementById('modalDesc').innerText = l.desc;
-        document.getElementById('modalCat').innerText = l.segmento.toUpperCase();
+        // AJUSTADO: l.seguimentos
+        document.getElementById('modalCat').innerText = l.seguimentos.toUpperCase();
         document.getElementById('modalHorario').innerText = l.horario || 'Não informado';
         document.getElementById('modalImg').src = l.foto || l.banner;
         document.getElementById('btnZap').href = `https://wa.me/${l.zap.replace(/\D/g,'')}?text=Vim pelo Brás Shopping!`;
-        document.getElementById('btnMaps').href = `https://www.google.com/maps?q=${l.lat},${l.log}`;
+        // AJUSTADO: l.lng
+        document.getElementById('btnMaps').href = `https://www.google.com/maps/dir/?api=1&destination=${l.lat},${l.lng}`;
         document.getElementById('modalLoja').style.display = 'flex';
     }
 
@@ -391,11 +401,11 @@
 
     const filtradas = lojas.filter(l => {
         const nome = limpar(l.nome);
-        const segmento = limpar(l.segmento);
+        const seguimentos = limpar(l.seguimentos); // AJUSTADO
         const descricao = limpar(l.desc);
 
         return nome.includes(termo) ||
-               segmento.includes(termo) ||
+               seguimentos.includes(termo) ||
                descricao.includes(termo);
     });
 
@@ -411,7 +421,7 @@
                     <div class="nome-loja">${l.nome}</div>
                     <div class="desc-card">${l.desc ? l.desc.substring(0, 40) + '...' : ''}</div>
                     <div class="horario-card">🕒 ${l.horario || 'Consulte'}</div>
-                    <span class="tag-segmento">${l.segmento}</span>
+                    <span class="tag-segmento">${l.seguimentos}</span>
                     <div class="btn-detalhes">VER DETALHES</div>
                 </div>`;
         });
@@ -457,24 +467,22 @@ window.open(`https://wa.me/5512992448264?text=${txt}`);
         }
     }
 
-    /* --- LÓGICA DO VEÍCULO (NOVA) --- */
+    /* --- LÓGICA DO VEÍCULO --- */
     function gerenciarVeiculo() {
         const salvo = localStorage.getItem('bras_local_veiculo');
        
         if (!salvo) {
-            // Estado 1: Salvar
             if(confirm("Deseja salvar sua localização atual como o local do seu VEÍCULO?")) {
                 navigator.geolocation.getCurrentPosition(p => {
                     const dados = { lat: p.coords.latitude, lng: p.coords.longitude };
                     localStorage.setItem('bras_local_veiculo', JSON.stringify(dados));
-                    alert("Localização salva! Agora você pode andar pelo Brás e clicar no botão para voltar.");
+                    alert("Localização salva!");
                     atualizarBotaoVeiculo();
-                }, () => alert("Para salvar, você precisa ativar o GPS!"));
+                }, () => alert("Ative o GPS!"));
             }
         } else {
-            // Estado 2: Retornar ou Limpar
             const pos = JSON.parse(salvo);
-            if(confirm("Você já tem um local salvo. Deseja TRAÇAR ROTA de volta para o veículo?\n\n(Clique em CANCELAR se quiser apenas apagar o local antigo)")) {
+            if(confirm("Deseja TRAÇAR ROTA de volta para o veículo?\n\n(Clique em CANCELAR se quiser apenas apagar o local antigo)")) {
                 window.open(`https://www.google.com/maps/dir/?api=1&destination=${pos.lat},${pos.lng}&travelmode=walking`, '_blank');
             } else {
                 if(confirm("Deseja APAGAR o local salvo para registrar um novo?")) {
@@ -490,7 +498,7 @@ window.open(`https://wa.me/5512992448264?text=${txt}`);
         const salvo = localStorage.getItem('bras_local_veiculo');
         if (salvo) {
             btn.innerHTML = "RETORNAR<br>VEÍCULO 📍";
-            btn.style.background = "#25D366"; // Muda para verde quando tem algo salvo
+            btn.style.background = "#25D366";
         } else {
             btn.innerHTML = "SALVAR<br>VEÍCULO 🚗";
             btn.style.background = "var(--azul-bras)";
@@ -501,3 +509,5 @@ window.open(`https://wa.me/5512992448264?text=${txt}`);
 </script>
 </body>
 </html>
+
+ 
