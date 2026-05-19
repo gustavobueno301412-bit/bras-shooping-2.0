@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brás Shopping - Bueno Software</title>
+    <title>Vitrine Online Brasil - Bueno Software</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <style>
@@ -24,7 +24,7 @@
             color: var(--texto);
             overflow-x: hidden;
         }
-       
+      
         header {
             background: var(--azul-bras);
             padding: 15px 10px;
@@ -52,18 +52,41 @@
         .banner-wrapper { display: flex; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
         .banner-img { min-width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
 
+        /* Estilização do novo container de busca triplo mantendo harmonia com o design */
+        .busca-container-triplo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+        .busca-input-container {
+            flex: 1;
+        }
         .busca-input {
             width: 100%;
             padding: 16px 20px;
             border-radius: 30px;
             border: 2px solid #eee;
-            margin-bottom: 15px;
             box-sizing: border-box;
             outline: none;
             font-size: 1rem;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            background-color: var(--branco);
         }
         .busca-input:focus { border-color: var(--laranja-bras); }
+       
+        /* Ajuste sutil para telas menores nas buscas */
+        @media (max-width: 600px) {
+            .busca-container-triplo {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .busca-input-container {
+                width: 100%;
+            }
+        }
 
         .categorias { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
         .cat-btn {
@@ -144,14 +167,56 @@
 <body>
 
 <header>
-    <div class="titulo-app">BRÁS SHOPPING 🛍️</div>
-    <div class="subtitulo-app">Bueno Software</div>
+    <div class="titulo-app">VITRINE ONLINE BRASIL 🛍️</div>
+  
+   <div class="subtitulo-app">Bueno Software</div>
 </header>
 
 <div class="container">
     <div class="banner-container"><div class="banner-wrapper" id="bannerApp"></div></div>
-    <input type="text" id="inputBusca" class="busca-input" placeholder="🔍 Buscar loja ou produto..." onkeyup="executarBusca()">
    
+    <!-- NOVO BLOCO DE BUSCA: Dividido em 3 containers na mesma linha -->
+    <div class="busca-container-triplo">
+        <div class="busca-input-container">
+            <input type="text" id="inputBusca" class="busca-input" placeholder="🔍 Buscar loja ou produto..." onkeyup="executarBusca()">
+        </div>
+        <div class="busca-input-container">
+            <input type="text" id="inputCidade" class="busca-input" placeholder="📍 Cidade..." onkeyup="executarBusca()">
+        </div>
+        <div class="busca-input-container">
+            <select id="inputEstado" class="busca-input" onchange="executarBusca()" style="background: var(--branco); -webkit-appearance: none; -moz-appearance: none; appearance: none;">
+                <option value="">🏳️ Estado...</option>
+                <option value="AC">Acre</option>
+                <option value="AL">Alagoas</option>
+                <option value="AP">Amapá</option>
+                <option value="AM">Amazonas</option>
+                <option value="BA">Bahia</option>
+                <option value="CE">Ceará</option>
+                <option value="DF">Distrito Federal</option>
+                <option value="ES">Espírito Santo</option>
+                <option value="GO">Goiás</option>
+                <option value="MA">Maranhão</option>
+                <option value="MT">Mato Grosso</option>
+                <option value="MS">Mato Grosso do Sul</option>
+                <option value="MG">Minas Gerais</option>
+                <option value="PA">Pará</option>
+                <option value="PB">Paraíba</option>
+                <option value="PR">Paraná</option>
+                <option value="PE">Pernambuco</option>
+                <option value="PI">Piauí</option>
+                <option value="RJ">Rio de Janeiro</option>
+                <option value="RN">Rio Grande do Norte</option>
+                <option value="RS">Rio Grande do Sul</option>
+                <option value="RO">Rondônia</option>
+                <option value="RR">Roraima</option>
+                <option value="SC">Santa Catarina</option>
+                <option value="SP">São Paulo</option>
+                <option value="SE">Sergipe</option>
+                <option value="TO">Tocantins</option>
+            </select>
+        </div>
+    </div>
+  
     <div class="categorias">
         <button class="cat-btn active" onclick="filtrar('todos', this)">✨ TODOS</button>
         <button class="cat-btn" onclick="filtrar('feminino', this)">👚 FEMININO</button>
@@ -174,7 +239,7 @@
     <div class="modal-content">
         <span onclick="fecharModal('modalLoja')" style="position:absolute; top:15px; right:20px; cursor:pointer; font-size:30px;">×</span>
         <img id="modalImg" src="" style="width: 100%; height: 200px; object-fit: contain; margin-bottom:15px; border-radius:15px;">
-       
+      
         <div class="info-linha">
             <div class="info-label">Loja</div>
             <div id="modalNome" style="font-size: 1.2rem; font-weight: bold; color: var(--azul-bras);"></div>
@@ -217,28 +282,28 @@
     <div class="modal-content">
         <div class="aviso-gps">⚠️ O cadastro deve ser feito de dentro da loja para marcar o GPS corretamente!</div>
         <h3 style="text-align: center; color: var(--laranja-bras);">Cadastre sua Loja</h3>
-       
+      
         <label>Nome Comercial:</label>
         <input type="text" id="cadNome" class="busca-input">
-       
+      
         <label>WhatsApp:</label>
         <input type="tel" id="cadZap" placeholder="(11) 99999-9999" class="busca-input">
-       
+      
         <label>Descrição dos Produtos:</label>
         <input type="text" id="cadDescInput" placeholder="O que você vende?" class="busca-input">
-       
+      
         <label>Categoria:</label>
         <select id="cadCat" class="busca-input" style="background: white;">
             <option value="">Selecione...</option>
             <option value="feminino">Feminino</option>
             <option value="masculino">Masculino</option>
             <option value="infantil">Infantil</option>
-            <option value="jeans">Jeans</option>
+            <option value="food">Alimentos</option>
             <option value="calcados">Calçados</option>
             <option value="eletronicos">Eletrônicos</option>
             <option value="variedades">Outros/Variedades</option>
         </select>
-       
+      
         <label>Dias e Horários de Funcionamento:</label>
         <input type="text" id="cadHorario" placeholder="Ex: 08h às 17h" class="busca-input">
 
@@ -254,11 +319,11 @@
             <b>8. DA FISCALIZAÇÃO E DA RESPONSABILIDADE:</b> O lojista é o único e exclusivo responsável por eventuais fiscalizações, autuações ou problemas de qualidade e entrega. O Brás Shopping não monitora estoques e não garante a idoneidade das transações realizadas fora do ambiente do aplicativo.<br><br>
             <b>9. DO GPS E PRIVACIDADE:</b> O lojista autoriza a coleta da coordenada geográfica (GPS) no ato do cadastro para fins de geolocalização do estabelecimento físico, isentando a plataforma de mau uso desse dado por terceiros.<br><br>
             <b>10. VALORES (PIX):</b> <br>
-            6.1. PLANO ESSENCIAL: R$ 50,00 mensais.<br>
-            6.2. PLANO DESTAQUE (BANNER): R$ 70,00 mensais.<br>
-            6.3. ADESÃO: Pagamento pré-pago para ativação.
+            10.1. PLANO ESSENCIAL: R$ 50,00 mensais.<br>
+            10.2. PLANO DESTAQUE (BANNER): R$ 70,00 mensais.<br>
+            10.3. ADESÃO: Pagamento pré-pago para ativação.
         </div>
-       
+      
         <div style="margin: 15px 0; display: flex; align-items: center; gap: 8px;">
             <input type="checkbox" id="aceitoTermos" style="width:18px; height:18px;">
             <label for="aceitoTermos" style="margin:0; font-size: 0.75rem;">Li e aceito os termos e planos.</label>
@@ -282,7 +347,7 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-   
+  
     let lojas = [];
     let bannerIndex = 0;
 
@@ -295,7 +360,6 @@
     const ultimaAtualizacao = localStorage.getItem('bras_cache_hora');
     const agora = new Date().getTime();
 
-    // CORREÇÃO GUSTAVO: Mudei para 1 minuto para atualizar mais rápido quando você mudar no Firebase
     if (cacheSalvo && ultimaAtualizacao && (agora - ultimaAtualizacao < 1 * 60 * 1000)) {
         lojas = JSON.parse(cacheSalvo);
         mostrarLojas();
@@ -318,8 +382,9 @@
                 lng: d.lng || "",
                 foto: d.foto || "",
                 banner: d.banner || "",
-                 insta: d.insta || "" 
-                
+                insta: d.insta || "",
+                cidade: d.cidade || "",  /* Adicionado preventivamente para suporte futuro */
+                estado: d.estado || ""   /* Adicionado preventivamente para suporte futuro */
             };
         });
 
@@ -345,7 +410,6 @@
 
     lista.sort(() => Math.random() - 0.5);
 
-    // GUSTAVO: Mantive seu limite de 40 lojas aqui para performance
     const iniciais = lista.slice(0, 40);
 
     let html = '';
@@ -384,7 +448,7 @@
         document.getElementById('modalHorario').innerText = l.horario || 'Não informado';
         document.getElementById('modalImg').src = l.foto || l.banner;
         document.getElementById('btnZap').href = `https://wa.me/${l.zap.toString().replace(/\D/g,'')}?text=Vim pelo Brás Shopping!`;
-        // CONFIGURAÇÃO DO INSTAGRAM
+       
         const btnInsta = document.getElementById('btnInsta');
         if (l.insta && l.insta.length > 5) {
             btnInsta.href = l.insta;
@@ -392,7 +456,7 @@
         } else {
             btnInsta.style.display = 'none';
         }
-        // CORREÇÃO GUSTAVO: Corrigi o link do Maps que estava com erro de digitação
+       
         document.getElementById('btnMaps').href = "https://www.google.com/maps?q=" + l.lat + "," + l.lng;
        
         document.getElementById('modalLoja').style.display = 'flex';
@@ -400,7 +464,11 @@
 
   function executarBusca() {
     const termo = limpar(document.getElementById('inputBusca').value);
-    if (termo.length < 2) {
+    const termoCidade = limpar(document.getElementById('inputCidade').value);
+    const termoEstado = limpar(document.getElementById('inputEstado').value);
+
+    // Se todos os campos estiverem vazios, volta a mostrar a vitrine completa padrão
+    if (termo.length < 2 && termoCidade.length < 2 && termoEstado === "") {
         mostrarLojas();
         return;
     }
@@ -409,10 +477,15 @@
         const nome = limpar(l.nome);
         const seguimentos = limpar(l.seguimentos);
         const descricao = limpar(l.desc);
+        const cidadeLoja = limpar(l.cidade || "");
+        const estadoLoja = limpar(l.estado || "");
 
-        return nome.includes(termo) ||
-               seguimentos.includes(termo) ||
-               descricao.includes(termo);
+        // Valida cada campo individualmente se ele tiver sido preenchido pelo usuário
+        const bateTermo = termo.length < 2 || (nome.includes(termo) || seguimentos.includes(termo) || descricao.includes(termo));
+        const bateCidade = termoCidade.length < 2 || cidadeLoja.includes(termoCidade);
+        const bateEstado = termoEstado === "" || estadoLoja === termoEstado;
+
+        return bateTermo && bateCidade && bateEstado;
     });
 
     mostrarLojasFiltradas(filtradas);
@@ -431,7 +504,7 @@
                     <div class="btn-detalhes">VER DETALHES</div>
                 </div>`;
         });
-        document.getElementById('vitrine').innerHTML = html || '<p>Nada encontrado.</p>';
+        document.getElementById('vitrine').innerHTML = html || '<p style="text-align:center; padding:20px; width:100%;">Nada encontrado.</p>';
     }
 
     function filtrar(cat, btn) {
@@ -466,7 +539,6 @@
                 txt += `*Segmento:* ${campos.cat}%0A`;
                 txt += `*Produtos:* ${campos.desc}%0A`;
                 txt += `*Horário:* ${campos.horario}%0A`;
-                // CORREÇÃO GUSTAVO: Corrigi o link do GPS para o WhatsApp
                 txt += `*Localização (GPS):* https://www.google.com/maps?q=${lat},${lng}%0A%0A`;
                 txt += `*Data:* ${new Date().toLocaleString('pt-BR')}`;
 
@@ -491,7 +563,6 @@
         } else {
             const pos = JSON.parse(salvo);
             if(confirm("Deseja TRAÇAR ROTA de volta para o veículo?\n\n(Clique em CANCELAR se quiser apenas apagar o local antigo)")) {
-                // CORREÇÃO GUSTAVO: Link do Maps para retorno corrigido
                 window.open(`https://www.google.com/maps/dir/?api=1&destination=${pos.lat},${pos.lng}&travelmode=walking`, '_blank');
             } else {
                 if(confirm("Deseja APAGAR o local salvo para registrar um novo?")) {
@@ -509,7 +580,7 @@
             btn.innerHTML = "RETORNAR<br>VEÍCULO 📍";
             btn.style.background = "#25D366";
         } else {
-            btn.innerHTML = "SALVAR<br>VEÍCULO 🚗";
+            btn.innerHTML = "SALVAR<br>VEÍCULO 🚘";
             btn.style.background = "var(--azul-bras)";
         }
     }
